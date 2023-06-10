@@ -35,7 +35,7 @@ class MyGame(arcade.Window):
         self.rock_computer = arcade.Sprite("assets/srock.png", 0.5, center_x=1480, center_y=437)
         self.paper_computer = arcade.Sprite("assets/spaper.png", 0.5, center_x=1480, center_y=437)
         self.scissors_computer = arcade.Sprite("assets/scissors.png", 0.5, center_x=1480, center_y=437)
-        self.player_attack_chosen = False
+        self.player_attack_chosen = None
         self.game_state = GameState.NOT_STARTED
         self.joueur = arcade.Sprite("assets/faceBeard.png", 0.85, center_x= 450, center_y= 650)
         self.computer = arcade.Sprite("assets/compy.png", 4,center_x= 1470,center_y= 650)
@@ -76,10 +76,14 @@ class MyGame(arcade.Window):
                 self.paper_computer.draw()
             if self.computer_attack_type == AttackType.SCISSORS:
                 self.scissors_computer.draw()
-#On dessine tout les textes necessaire pour comprendre le jeu
+
+    def draw_scores(self):
+        arcade.draw_text(f"Le pointage du joueur est: {self.player_score} ", 315, 490, arcade.color.WHITE, 10,
+                         font_name="Kenney Future")
+        arcade.draw_text(f"Le pointage du robot est: {self.computer_score} ", 1350, 490, arcade.color.WHITE, 10,
+                         font_name="Kenney Future")
+    #On dessine tout les textes necessaire pour comprendre le jeu
     def draw_instructions(self):
-        arcade.draw_text(f"Le pointage du joueur est: {self.player_score} ", 315, 490, arcade.color.WHITE, 10, font_name="Kenney Future")
-        arcade.draw_text(f"Le pointage du robot est: {self.computer_score} ", 1350, 490, arcade.color.WHITE, 10,font_name="Kenney Future")
         if self.game_state == GameState.ROUND_DONE:
             arcade.draw_text("Appuyez sur ESPACE pour continuer", 690, 600, arcade.color.WHITE, 15,
                              font_name="Kenney Future")
@@ -105,6 +109,7 @@ class MyGame(arcade.Window):
 #ICi on appelle toutes nos methode pour afficher les choses
     def on_draw(self):
         arcade.start_render()
+        self.draw_scores()
         arcade.draw_text(SCREEN_TITLE,
                          0,
                          SCREEN_HEIGHT - DEFAULT_LINE_HEIGHT * 2,
@@ -167,7 +172,12 @@ class MyGame(arcade.Window):
 #ON redefinit lattaque du computer a zero apres chaque round
     def reset_round(self):
         self.computer_attack_type = None
-#Si on appuis sur les attaque, ca les selectionne
+        self.player_attack_chosen = False
+        self.player_attack_type = {AttackType.ROCK: False, AttackType.PAPER: False, AttackType.SCISSORS: False}
+        self.player_won_round = False
+        self.draw_round = False
+    
+    #Si on appuis sur les attaque, ca les selectionne
     def on_mouse_press(self, x, y, button, key_modifiers):
         if self.game_state == GameState.ROUND_ACTIVE:
             if self.rock.collides_with_point((x, y)):
